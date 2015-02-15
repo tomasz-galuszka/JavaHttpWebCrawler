@@ -25,6 +25,9 @@ public class DealerMdt {
     public Dealer getPremiumCarDealer(String id) throws DealerMdtException {
         try {
             Document doc = getMdt().getPremiumCarDetailsPage(id);
+            if (!transformer.isDealerPage(doc)) {
+                return null;
+            }
             return transformer.getDealerFromDocument(doc);
         } catch (Exception e) {
             throw new DealerMdtException(e);
@@ -34,6 +37,9 @@ public class DealerMdt {
     public Dealer getCarDealer(String id) throws DealerMdtException {
         try {
             Document doc = getMdt().getNormalCarDetailsPage(id);
+            if (!transformer.isDealerPage(doc)) {
+                return null;
+            }
             return transformer.getDealerFromDocument(doc);
         } catch (Exception e) {
             throw new DealerMdtException(e);

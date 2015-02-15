@@ -1,6 +1,8 @@
 package data.dealer;
 
 import data.db.Dealer;
+import data.xpath.CarDetailsPageXpaths;
+import data.xpath.XpathEvaluator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Element;
@@ -28,6 +30,20 @@ public class DealerMdtTransformer {
         public DealerMdtTransformerException(String message, Throwable cause) {
             super(message, cause);
         }
+    }
+
+    public boolean isDealerPage(Document doc) {
+        try {
+            String s = XpathEvaluator.evaluateXpathString(doc, CarDetailsPageXpaths.OFFER_TYPE_XPATH);
+            if (s.trim().contains("Annuncio di privato")) {
+                System.out.println("--- Private offer - skipped");
+                return false;
+            }
+        } catch (XpathEvaluator.XpathEvaluatorException e) {
+            System.out.println("--- Private offer - skipped");
+            return false;
+        }
+        return true;
     }
 
     public Dealer getDealerFromDocument(Document doc) throws DealerMdtTransformerException {
