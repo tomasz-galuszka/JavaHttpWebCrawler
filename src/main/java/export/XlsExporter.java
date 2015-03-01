@@ -5,6 +5,7 @@ import data.db.Dealer;
 import jxl.Workbook;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
+import logger.Logger;
 import serialization.DealersContainer;
 
 import java.io.File;
@@ -20,7 +21,7 @@ public class XlsExporter {
         int fileNumber = 1;
         int currentSize = 0;
 
-        Map<Dealer, Set<Car>> offers = container.getOffersmap();
+        Map<Dealer, Set<Car>> offers = container.getOffersMap();
         Map<Dealer, Set<Car>> subOffers = new HashMap<Dealer, Set<Car>>();
         Set<Dealer> dealers = offers.keySet();
         for (Dealer dealer : dealers) {
@@ -31,12 +32,12 @@ public class XlsExporter {
             int dealerOffers = offers.get(dealer).size();
             if (currentSize + dealerOffers > max_sheet_size) {
                 filePath = filePath.replace(".xls", "_" + fileNumber + ".xls");
-                System.out.println("-- Exporting file: " + filePath);
+                Logger.log(" Exporting file: " + filePath);
                 export(filePath, subOffers);
                 fileNumber++;
                 currentSize = 0;
                 subOffers.clear();
-                System.out.println("-- OK !");
+                Logger.log(" OK !");
             } else {
                 subOffers.put(dealer, offers.get(dealer));
                 currentSize += dealerOffers;
@@ -45,12 +46,12 @@ public class XlsExporter {
 
         if (!subOffers.isEmpty()) {
             filePath = filePath.replace(".xls", "_" + fileNumber + "_reszta.xls");
-            System.out.println("-- Exportint file: " + filePath);
+            Logger.log(" Exportint file: " + filePath);
             export(filePath, subOffers);
             fileNumber++;
             currentSize = 0;
             subOffers.clear();
-            System.out.println("-- OK !");
+            Logger.log(" OK !");
         }
     }
 

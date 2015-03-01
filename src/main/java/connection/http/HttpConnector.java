@@ -94,10 +94,8 @@ public class HttpConnector {
     }
 
     private HttpURLConnection connect(String www) throws IOException, HttpConnectorException {
-        System.out.println("-- Exploration [" + www + "]");
-
         try {
-            Thread.sleep(500);
+            Thread.sleep(config.getSleepTime());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -7,49 +7,68 @@ import serialization.Writer;
 
 import java.io.File;
 
-public class Crawler {
+public class Crawler implements Runnable {
 
-    private CarDataFacade dataFacade;
+    private final String name;
+    private CarDataFacade dataFacade = new CarDataFacade();
     private DealersContainer dataContainer;
     private Reader reader = new Reader();
     private Writer writer = new Writer();
     private File dataFile;
+    private int startPage;
+    private int endPage;
 
-    public Crawler(File f) {
+    public Crawler(String name, File dataFile, int startPage, int endPage, DealersContainer dataContainer) {
+        this.dataFile = dataFile;
+        this.startPage = startPage;
+        this.endPage = endPage;
+        this.name = name;
+        this.dataContainer = dataContainer;
+        this.dataContainer.getCrawlerCurrentPage().put(this.name, startPage);
+    }
+
+    @Override
+    public void run() {
+        downloadPremiumData();
+        readFile();
+        downloadStandardData();
+        saveToFile();
+    }
+
+    private synchronized void readFile() {
         try {
-            dataFile = f;
-            dataFacade = new CarDataFacade();
-            dataContainer = reader.read(dataFile);
+            DealersContainer readedData = reader.read(dataFile);
+            dataContainer.clearOffers();
+            dataContainer.getOffersMap().putAll(readedData.getOffersMap());
+            dataContainer.setCurrentPage(this.name, readedData.getCrawlerCurrentPage().get(this.name));
+            dataContainer.setPremiumDownloaded(readedData.isPremiumDownloaded());
+
+
+            try {
+                startPage = dataContainer.getCrawlerCurrentPage().get(this.name);
+            } catch (Exception e) {
+            }
+
+            Thread.sleep(200);
+
         } catch (Reader.ReaderExceptin readerExceptin) {
             readerExceptin.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
-    public void go() {
-        if (dataContainer.getOffersmap().isEmpty()) {
-            downloadPremiumCars();
-        }
-
-        if (dataContainer.getTotalCount() < 1) {
-            dataContainer.setPage(1);
-        }
-
-        dataContainer.setTotalCount(dataFacade.getPagesTotalCount());
-
-        for (int i = dataContainer.getPage(); i <= dataContainer.getTotalCount(); i++) {
-            downloadNormalCars(i);
-        }
-    }
-
-    public void downloadNormalCars(int page) {
+    public synchronized void downloadPremiumData() {
         try {
-            for (Car car : dataFacade.getCars(page)) {
+            readFile();
+            if (dataContainer.isPremiumDownloaded()) {
+                return;
+            }
+            for (Car car : dataFacade.getPremiumCars(this.name)) {
                 dataContainer.put(car);
             }
-            dataContainer.setPage(page);
-            dataContainer.setTotalCount(dataFacade.getPagesTotalCount());
-            writer.write(dataContainer, dataFile);
-
+            dataContainer.setPremiumDownloaded(true);
+            saveToFile();
         } catch (Configuration.ConfigurationException e) {
             Main.handleCriticalException(e);
         } catch (Exception e) {
@@ -57,14 +76,28 @@ public class Crawler {
         }
     }
 
-    public void downloadPremiumCars() {
-        try {
-            for (Car car : dataFacade.getPremiumCars()) {
-                dataContainer.put(car);
+    private void downloadStandardData() {
+        for (int page = startPage; page <= endPage; page++) {
+            try {
+                for (Car car : dataFacade.getCars(this.name, page)) {
+                    dataContainer.put(car);
+                }
+                dataContainer.setCurrentPage(name, page + 1);
+                dataContainer.setTotalCount(dataFacade.getPagesTotalCount());
+                writer.write(dataContainer, dataFile);
+                readFile();
+
+            } catch (Configuration.ConfigurationException e) {
+                Main.handleCriticalException(e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        }
+    }
+
+    private synchronized void saveToFile() {
+        try {
             writer.write(dataContainer, dataFile);
-        } catch (Configuration.ConfigurationException e) {
-            Main.handleCriticalException(e);
         } catch (Exception e) {
             e.printStackTrace();
         }

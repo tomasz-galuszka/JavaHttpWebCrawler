@@ -27,9 +27,9 @@ public class OfferMdt {
     private Configuration config;
     private Gson gson;
 
-    public String getMainStringFromPage(int page) throws OfferMdtException, Configuration.ConfigurationException {
+    public String getMainStringFromPage(String crawlerName, int page) throws OfferMdtException, Configuration.ConfigurationException {
         try {
-            Document doc = getMdt().getSearchPage(page);
+            Document doc = getMdt().getSearchPage(crawlerName, page);
             return XpathEvaluator.evaluateXpathString(doc, SearchResultPageXpaths.PAGE_ITEMS);
         } catch (HttpConnector.HttpConnectorException e) {
             throw new OfferMdtException(e);

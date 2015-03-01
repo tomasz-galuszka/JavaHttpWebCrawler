@@ -9,22 +9,19 @@ import data.offer.OfferMdt;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by tomasz on 07.02.15.
- */
 public class CarDataFacade {
 
     private DealerMdt dealerMdt = new DealerMdt();
     private OfferMdt offerMdt = new OfferMdt();
     private Integer pagesTotalCount = 10; // some place to start ;(
 
-    public List<Car> getPremiumCars() throws Configuration.ConfigurationException {
+    public List<Car> getPremiumCars(String crawlerName) throws Configuration.ConfigurationException {
         List<Car> cars = new ArrayList<Car>();
         try {
             CarItem[] premiumCars = offerMdt.getPremiumCars();
             for (int i = 0; i < premiumCars.length; i++) {
                 Car car = CarTransformer.transform(premiumCars[i]);
-                car.setDealer(dealerMdt.getPremiumCarDealer(car.getId()));
+                car.setDealer(dealerMdt.getPremiumCarDealer(crawlerName, car.getId()));
                 cars.add(car);
             }
         } catch (OfferMdt.OfferMdtException e) {
@@ -35,15 +32,15 @@ public class CarDataFacade {
         return cars;
     }
 
-    public List<Car> getCars(int page) throws Configuration.ConfigurationException {
+    public List<Car> getCars(String crawlerName, int page) throws Configuration.ConfigurationException {
         List<Car> result = new ArrayList<Car>();
         try {
-            String mainStringFromPage = offerMdt.getMainStringFromPage(page);
+            String mainStringFromPage = offerMdt.getMainStringFromPage(crawlerName, page);
             CarItem[] cars = offerMdt.getCarsFromMainString(mainStringFromPage);
             pagesTotalCount = Integer.valueOf(offerMdt.getPagesTotalCountFromMainString(mainStringFromPage));
             for (int i = 0; i < cars.length; i++) {
                 Car car = CarTransformer.transform(cars[i]);
-                car.setDealer(dealerMdt.getCarDealer(car.getId()));
+                car.setDealer(dealerMdt.getCarDealer(crawlerName, car.getId()));
                 result.add(car);
             }
         } catch (OfferMdt.OfferMdtException e) {

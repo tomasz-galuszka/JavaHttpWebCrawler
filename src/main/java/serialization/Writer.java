@@ -1,5 +1,7 @@
 package serialization;
 
+import logger.Logger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -21,24 +23,21 @@ public class Writer {
         }
     }
 
-    public void write(DealersContainer data, File f) throws Exception {
+    public synchronized void write(DealersContainer data, File f) throws Exception {
         try {
-            System.out.println("-- Writting to temporary file: " + f.getAbsolutePath());
-
             FileOutputStream fout = new FileOutputStream(f);
             ObjectOutputStream oos = new ObjectOutputStream(fout);
             oos.writeObject(data);
             oos.close();
 
-            System.out.println("");
-            System.out.println("-- Writting data to temporary file: SUCCESS !");
-            System.out.println("-- Downloaded dealers: " + data.getOffersmap().size());
-            System.out.println("-- Current page: " + data.getPage());
-            System.out.println("-- Total pages: " + data.getTotalCount());
-            System.out.println("");
+            Logger.log("");
+            Logger.log(" Writting to temporary file: " + f.getAbsolutePath());
+            Logger.log(" Downloaded dealers: " + data.getOffersMap().size());
+            Logger.log(" Total pages: " + data.getTotalCount() / 80);
+            Logger.log("");
 
         } catch (Exception e) {
-            throw new Exception("-- Can't write dealers to file" + f.getAbsolutePath(), e);
+            throw new Exception(" Can't write dealers to file" + f.getAbsolutePath(), e);
         }
     }
 }

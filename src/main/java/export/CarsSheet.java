@@ -8,6 +8,7 @@ import jxl.format.BorderLineStyle;
 import jxl.format.Colour;
 import jxl.write.*;
 import jxl.write.biff.RowsExceededException;
+import logger.Logger;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +30,7 @@ public class CarsSheet {
         try {
             fillWithData(offersMap, sheet, sheet.getRows());
         } catch (RowsExceededException e) {
-            System.out.println(e.getMessage());
+            Logger.log(e.getMessage());
         }
         expandColumns(sheet, 8);
     }
@@ -65,7 +66,7 @@ public class CarsSheet {
             arial10format.setBorder(Border.ALL, BorderLineStyle.THIN);
             Set<Dealer> keySet = offersMap.keySet();
             int i = startRow;
-            System.out.println("-- Filling sheet ...");
+            Logger.log(" Filling sheet ...");
             for (Dealer dealer : keySet) {
                 if (dealer == null) {
                     continue;

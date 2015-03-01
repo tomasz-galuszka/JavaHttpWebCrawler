@@ -30,6 +30,7 @@ public class Configuration {
     private String port;
     private String type;
     private String serializationFile;
+    private Integer sleepTime = 0;
 
     public Configuration() throws ConfigurationException {
         FileInputStream inStream = null;
@@ -51,6 +52,7 @@ public class Configuration {
             port = properties.getProperty("port");
             type = properties.getProperty("type");
             serializationFile = properties.getProperty("serializationFile");
+            sleepTime = Integer.valueOf(properties.getProperty("sleepTime"));
 
         } catch (IOException e) {
             throw new ConfigurationException("Problem while reading configuration from " + CONFIG_FILE + " file.", e);
@@ -113,6 +115,14 @@ public class Configuration {
         return serializationFile;
     }
 
+    public Integer getSleepTime() {
+        return sleepTime;
+    }
+
+    public void setSleepTime(Integer sleepTime) {
+        this.sleepTime = sleepTime;
+    }
+
     @Override
     public String toString() {
         return "Configuration{" +
@@ -128,6 +138,7 @@ public class Configuration {
                 ", port='" + port + '\'' +
                 ", type='" + type + '\'' +
                 ", serializationFile='" + serializationFile + '\'' +
+                ", sleepTime=" + sleepTime +
                 '}';
     }
 }

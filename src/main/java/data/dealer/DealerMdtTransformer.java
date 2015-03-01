@@ -3,13 +3,13 @@ package data.dealer;
 import data.db.Dealer;
 import data.xpath.CarDetailsPageXpaths;
 import data.xpath.XpathEvaluator;
+import logger.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.w3c.dom.Document;
 
-import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -36,11 +36,11 @@ public class DealerMdtTransformer {
         try {
             String s = XpathEvaluator.evaluateXpathString(doc, CarDetailsPageXpaths.OFFER_TYPE_XPATH);
             if (s.trim().contains("Annuncio di privato")) {
-                System.out.println("--- Private offer - skipped");
+                Logger.log(" Private offer - skipped");
                 return false;
             }
         } catch (XpathEvaluator.XpathEvaluatorException e) {
-            System.out.println("--- Private offer - skipped");
+            Logger.log(" Private offer - skipped");
             return false;
         }
         return true;
@@ -84,7 +84,7 @@ public class DealerMdtTransformer {
             }
             result = removeLastSeparator(result);
         } catch (Exception e) {
-            System.out.println("--- City field is empty");
+            Logger.log(" City field is empty");
             return result;
         }
         return result;
@@ -106,7 +106,7 @@ public class DealerMdtTransformer {
             }
             result = removeLastSeparator(result);
         } catch (Exception e) {
-            System.out.println("--- ZipCode field is empty");
+            Logger.log(" ZipCode field is empty");
             return result;
         }
 
@@ -122,7 +122,7 @@ public class DealerMdtTransformer {
             }
             result = removeLastSeparator(result);
         } catch (Exception e) {
-            System.out.println("--- Street field is empty");
+            Logger.log(" Street field is empty");
             return result;
         }
         return result;
@@ -137,7 +137,7 @@ public class DealerMdtTransformer {
             }
             result = removeLastSeparator(result);
         } catch (Exception e) {
-            System.out.println("--- Phone field is empty");
+            Logger.log(" Phone field is empty");
             return result;
         }
         return result;
@@ -150,7 +150,7 @@ public class DealerMdtTransformer {
             Elements links = sellerCompanyLink.select("a[href]");
             result = links.get(0).attr("href");
         } catch (Exception e) {
-            System.out.println("--- Link field is empty");
+            Logger.log(" Link field is empty");
             return result;
         }
         return result;
@@ -163,7 +163,7 @@ public class DealerMdtTransformer {
             Elements links = sellerCompanyLink.select("a[href]");
             result = links.get(0).text();
         } catch (Exception e) {
-            System.out.println("--- Name field is empty");
+            Logger.log(" Name field is empty");
             return result;
         }
         return result;

@@ -22,9 +22,9 @@ public class DealerMdt {
     private Configuration config;
     private DealerMdtTransformer transformer = new DealerMdtTransformer();
 
-    public Dealer getPremiumCarDealer(String id) throws DealerMdtException {
+    public Dealer getPremiumCarDealer(String crawlerName, String id) throws DealerMdtException {
         try {
-            Document doc = getMdt().getPremiumCarDetailsPage(id);
+            Document doc = getMdt().getPremiumCarDetailsPage(crawlerName, id);
             if (!transformer.isDealerPage(doc)) {
                 return null;
             }
@@ -34,9 +34,9 @@ public class DealerMdt {
         }
     }
 
-    public Dealer getCarDealer(String id) throws DealerMdtException {
+    public Dealer getCarDealer(String crawlerName, String id) throws DealerMdtException {
         try {
-            Document doc = getMdt().getNormalCarDetailsPage(id);
+            Document doc = getMdt().getNormalCarDetailsPage(crawlerName, id);
             if (!transformer.isDealerPage(doc)) {
                 return null;
             }

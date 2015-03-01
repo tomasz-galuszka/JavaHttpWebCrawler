@@ -4,73 +4,66 @@ import data.db.Car;
 import data.db.Dealer;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DealersContainer implements Serializable {
 
     private static final long serialVersionUID = -4235058141916080579L;
-    private Map<Dealer, Set<Car>> offersmap;
-    private int page;
+    private ConcurrentHashMap<Dealer, Set<Car>> offersMap;
+    private Map<String, Integer> crawlerCurrentPage = new HashMap<String, Integer>();
     private int totalCount;
 
-    public DealersContainer() {
-        offersmap = new HashMap<Dealer, Set<Car>>();
+    public Map<String, Integer> getCrawlerCurrentPage() {
+        return crawlerCurrentPage;
+    }
+    private boolean isPremiumDownloaded = false;
+
+
+    public void clearOffers() {
+        offersMap.clear();
     }
 
-    public void put(Car c) {
+    public void setCurrentPage(String crawlerName, Integer page) {
+        crawlerCurrentPage.put(crawlerName, page);
+    }
+
+    public DealersContainer() {
+        offersMap = new ConcurrentHashMap<Dealer, Set<Car>>();
+    }
+
+    public synchronized void put(Car c) {
         if (c.getDealer() == null) {
             return;
         }
 
-        if (!offersmap.containsKey(c.getDealer())) {
-            Set<Car> set = new HashSet<Car>();
+        if (!offersMap.containsKey(c.getDealer())) {
+            Set<Car> set = Collections.synchronizedSet(new HashSet<Car>());
             set.add(c);
-            offersmap.put(c.getDealer(), set);
+            offersMap.put(c.getDealer(), set);
+
         } else {
-            offersmap.get(c.getDealer()).add(c);
+            offersMap.get(c.getDealer()).add(c);
         }
     }
 
-    public Map<Dealer, Set<Car>> getOffersmap() {
-        return offersmap;
-    }
-
-    public void setOffersmap(Map<Dealer, Set<Car>> offersmap) {
-        this.offersmap = offersmap;
-    }
-
-    public void printSize() {
-        Set<Dealer> keySet = offersmap.keySet();
-        int size = 0;
-        for (Dealer dealer : keySet) {
-            size += offersmap.get(dealer).size();
-        }
-        System.out.println("Page: " + page);
-        System.out.println("Total pages: " + totalCount);
-        float percent = page * 100 / (float) totalCount;
-        System.out.println("Download status: " + String.format("%.2f", percent) + "%");
-        System.out.println("Downloaded dealers: " + size);
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getTotalCount() {
-        if (totalCount < 2000) {
-            totalCount = page + 1;
-        }
-        return totalCount;
+    public ConcurrentHashMap<Dealer, Set<Car>> getOffersMap() {
+        return offersMap;
     }
 
     public void setTotalCount(int totalCount) {
         this.totalCount = totalCount;
+    }
+
+    public boolean isPremiumDownloaded() {
+        return isPremiumDownloaded;
+    }
+
+    public void setPremiumDownloaded(boolean isPremiumDownloaded) {
+        this.isPremiumDownloaded = isPremiumDownloaded;
+    }
+
+    public int getTotalCount() {
+        return totalCount;
     }
 }

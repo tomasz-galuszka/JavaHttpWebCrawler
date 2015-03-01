@@ -1,4 +1,5 @@
 import config.Configuration;
+import logger.Logger;
 import org.testng.annotations.Test;
 
 /**
@@ -9,7 +10,7 @@ public class ConfigurationTest {
     @Test
     public void create() {
         try {
-            System.out.println(new Configuration());
+            Logger.log(new Configuration().toString());
         } catch (Configuration.ConfigurationException e) {
             e.printStackTrace();
         }
