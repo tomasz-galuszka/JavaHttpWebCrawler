@@ -1,1 +1,2 @@
-# JavaHttpWebCrawler - web craweler skeleton for java based projects.
+# JavaHttpWebCrawler
+Web craweler skeleton for java based projects.
